@@ -1,0 +1,59 @@
+# depslib dependency file v1.0
+1722535970 source:c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\board.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<pthread.h>
+	"board.h"
+	"pseudo_moves.h"
+	"moves.h"
+	"evalutation.h"
+
+1726502961 source:c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\main.c
+	<stdio.h>
+	<stdlib.h>
+	"board.h"
+	"pseudo_moves.h"
+	"moves.h"
+	"evalutation.h"
+	<unistd.h>
+	<string.h>
+	<time.h>
+
+1722536017 c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\board.h
+	<pthread.h>
+
+1726247139 source:c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\evalutation.c
+	<stdio.h>
+	<stdlib.h>
+	"board.h"
+	"pseudo_moves.h"
+	"moves.h"
+	"evalutation.h"
+
+1726247734 c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\evalutation.h
+
+1722536248 c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\moves.h
+	<pthread.h>
+	"board.h"
+
+1726502939 source:c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\moves.c
+	<stdio.h>
+	<stdlib.h>
+	<pthread.h>
+	"board.h"
+	"pseudo_moves.h"
+	"moves.h"
+	"evalutation.h"
+
+1719881343 c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\pseudo_moves.h
+	"board.h"
+
+1726245617 source:c:\users\chris\onedrive\documents\projetc\chess_algorithm\chess_algorithm\pseudo_moves.c
+	<stdio.h>
+	<stdlib.h>
+	"board.h"
+	"pseudo_moves.h"
+	"moves.h"
+	"evalutation.h"
+
