@@ -1,0 +1,32 @@
+Entrez dans vscode à partir de Projet SQL et non le fichier vscode
+
+nom des databases: test_database, ceg2532_labo4, ceg2532_labo5
+
+Pour créé une nouvelle base de données (test_database est un exemple)
+CREATE DATABASE database_name;
+
+connection name: database_name
+server adress: localhost
+port: 5432
+Database: database_name
+username: postgres
+use password: Save as plain text in settings
+password: Natation2001$
+
+
+
+
+supabase_test_server:
+server adress: db.nowwpmxettjnvkkmrnbn.supabase.co
+port: 5432
+database+username = postgres
+password: GF1TT8oygJfjUMoe
+
+
+
+Projet_Hotel
+server adress: db.weicxggvvvhsgfbsuwkz.supabase.co
+port: 5432
+database+username = postgres
+password: SBSDbkJQyJCBgtjs
+pour javascript: postgresql://postgres:SBSDbkJQyJCBgtjs@db.weicxggvvvhsgfbsuwkz.supabase.co:5432/postgres

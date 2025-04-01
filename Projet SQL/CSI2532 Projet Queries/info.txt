@@ -1,0 +1,5 @@
+Projet_Hotel
+server adress: db.weicxggvvvhsgfbsuwkz.supabase.co
+port: 5432
+database+username = postgres
+password: SBSDbkJQyJCBgtjs
