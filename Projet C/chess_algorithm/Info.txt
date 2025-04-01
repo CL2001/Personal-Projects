@@ -1,0 +1,269 @@
+---Board
+    --FEN Format
+        currentPosition sideNextMove CatslingRight enPassant HalfmoveClock FullMoveClock
+        The initial position of a chess game is:
+        rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+
+        currentPosition:
+        Initial current position = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
+        It represents the piece locations on the board (capital letters = white pieces) (non captial letters are the white pieces)
+
+        sideNextMove:
+        Initial sideNextMove = w
+        character w and b are used to signifie which move is next
+
+        CastlingRights:
+        Initial castling rights = KQkq
+        K means white can castle on the king side
+        Q means white can castle on the queen side
+        k means black can castle on the king side
+        q means black can castle on the queen side
+
+        enPassant:
+        Initial enPassant status = -
+        A '-' is used when no en passant is allowed
+        If an en passant was allowed the number of the square would appear
+
+        HalfMoveClock:
+        the number is the amount of half moves since the last capture or pawn move
+        Once this counter reaches 100, the chess game is a draw
+
+        FullMoveClock:
+        Number of full moves since the start of the game. This increments after black has played, starts at 1 (use an int)
+
+
+
+    --Format used:
+        board[4][1] = 'k';
+        Means black king on b5
+        ---------------------------------
+        |7,0|7,1|7,2|7,3|7,4|7,5|7,6|7,7| 8
+        |---|---|---|---|---|---|---|---|
+        |6,0|6,1|6,2|6,3|6,4|6,5|6,6|6,7| 7
+        |---|---|---|---|---|---|---|---|
+        |5,0|5,1|5,2|5,3|5,4|5,5|5,6|5,7| 6
+        |---|---|---|---|---|---|---|---|
+        |4,0|4,1|4,2|4,3|4,4|4,5|4,6|4,7| 5
+        |---|---|---|---|---|---|---|---|
+        |3,0|3,1|3,2|3,3|3,4|3,5|3,6|3,7| 4
+        |---|---|---|---|---|---|---|---|
+        |2,0|2,1|2,2|2,3|2,4|2,5|2,6|2,7| 3
+        |---|---|---|---|---|---|---|---|
+        |1,0|1,1|1,2|1,3|1,4|1,5|1,6|1,7| 2
+        |---|---|---|---|---|---|---|---|
+        |0,0|0,1|0,2|0,3|0,4|0,5|0,6|0,7| 1
+        ---------------------------------
+          a   b   c   d   e   f   g   h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---Search Algorithm
+--Step 1: Minimax search tree
+--Step 2: Alpha Beta prunning
+--Step 3: Optimize search
+--Step 4: Add target depth
+
+--Step 1: Minimax search tree
+--Step 2: Alpha Beta prunning
+--Step 3: Optimize search
+Optimize search by forgetting other branches when there is a possibility of gaining +1.5 rating after 3 moves of the best outcomes
+Optimize search by forgetting a branch where the best outcome equates to -1.5 after 3 moves
+
+--Step 4: Add target depth
+Once reached 1/2 of the time allocated, the program will stop searching at equals depth and will focus the
+seach to the current best 10 branches in order to find which is the best.
+
+
+Note:
+Test first two steps by using a certain depth of search and checking the amount of checks and time the algorithm took.
+We assume the opponent always plays its best possible move.
+Maybe add the possibily of looking at sacrifices
+
+
+---Position Evaluation:
+--Step 0: Current part of the game
+--Step 1: Evaluate material
+--Step 2: Evaluate piece mobility
+--Step 3: Evaluation calculation using factors
+
+
+
+--Step 0: Evaluate if a position is at the opening, midgame, endgame stages.
+Opening: Teach basic openings up to 4 moves to the program. Choice of opening is random,
+once out of known theory, the program status changes to midgame.
+Midgame: Main part of the game
+Endgame: Endgame begins when both sides have three or less pieces, (doesn't count pawns or the King)
+
+--Step 1: Evaluate material Current material:
+Values for material are
+Pawn = 1
+Kngiht/Bishop = 3
+Rook = 5
+Queen = 9
+King = infinite (255)
+
+
+--Step 2: Evaluate current piece Mobility:
+Advantages on the board even if material is equal.
+
+-Pawn Structure:
+Reduce rating for doubled pawns.
+Reduce greatly rating for triple pawns.
+Reduce rating for isolated pawns.
+Increase rating for pawn chains.
+Increase rating for protected passed pawns are good, they can queen soon.
+
+-King Safety:
+Reduce rating for an exposed king
+Increase rating for a king that is placed around the outside of the map, especially in the corners.
+Increase rating if king has casling right
+
+
+-Center control:
+Reduce rating for squares attacked by the black
+Increase rating for squares attacked by white
+Squares control by neither or both give a 0 rating.
+Each square is given a value of importance
+
+Note: if a square is attacked by 3 white pieces and 2 black pieces, the square value is given to white
+If a square is attacked by 2 white pieces and 0 black, the square value is double in the rating for white
+
+-Piece activation:
+Each square is given a score for the piece and the part of the game currently being played
+
+
+Extra attributes that can increase a square / squares score:
+Knights
+Enjoy outposts (squares where they are sufficiently protected by a pawn) near the center of the board.
+
+Bishops
+Enjoy control of major diagonals.
+Enjoy being paired (having the other bishop still in the game) in open positions (where most pieces are not blocked) are good.
+
+Rooks
+Enjoy open files
+
+
+
+
+
+-- Step 3 calculate current position value:
+postion value material only = f(wMaterial - bMaterial)
+postion value = f(wMaterial - bMaterial) + a f(wPawnStruc - bPawnStruct) + b f(wKingSafety - bKingSafety) + c f(centerControl)
+                + d f(wPieceActivation - bPieceActivation)
+
+Note:
+A postive position value means white has an advantage, negative = advantage for black
+Materal calculation is accorded no factors.
+Factors have different value from midgames and endgames since these are slighlty different.
+
+
+Algo 1: Make random legal moves
+Algo 2: Add material evalutation to algorithm
+Algo 3: Add alpha beta prunning
+Algo 4: Add optimized search
+Algo 5: Add other position evaluation
+Algo 6: Add depth search
+
+Note:
+Compare 1 and 2 by who wins the most matches for a set depth
+Compare 2 and 3 by speed for a set depth and by a matches using a max time
+Compare 3 and 4 the same way 2 and 3 are tested
+Compare 4 and 5 by a set time and by playing matches against each other
+Compare 5 and 6 the same way 4 and 5 are compared
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stockfish elements:
+Stockfish values not to use:
+Pawn Midgame = 198, Pawn Endgame = 258
+Knight Midgame = 817, Knight Endgame = 846
+Bishop Midgame = 836, Bishop Endgame = 857
+Rook Midgame = 1270, Rook Endgame = 1281
+Queen Midgame = 2521, Queen Endgame = 2558
+
+
+void printBoardBlackPrespective(char board[])
+{
+    printf("---------------------------------\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 1\n", board[7], board[6], board[5], board[4], board[3], board[2], board[1], board[0]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 2\n", board[15], board[14], board[13], board[12], board[11], board[10], board[9], board[8]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 3\n", board[23], board[22], board[21], board[20], board[19], board[18], board[17], board[16]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 4\n", board[31], board[30], board[29], board[28], board[27], board[26], board[25], board[24]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 5\n", board[39], board[38], board[37], board[36], board[35], board[34], board[33], board[32]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 6\n", board[47], board[46], board[45], board[44], board[43], board[42], board[41], board[40]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 7\n", board[55], board[54], board[53], board[53], board[51], board[50], board[49], board[48]);
+    printf("|---|---|---|---|---|---|---|---|\n");
+    printf("| %c | %c | %c | %c | %c | %c | %c | %c | 8\n", board[63], board[62], board[61], board[60], board[59], board[58], board[57], board[56]);
+    printf("---------------------------------\n");
+    printf("  h   g   f   e   d   c   b   a\n");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

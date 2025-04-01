@@ -1,0 +1,24 @@
+Joueur 1: 
+Joueur Christophe a 1 coins.
+Chili: CCC
+Red: R
+Chaine vide bloque
+
+Joueur 2: 
+Joueur Maro a 1 coins.
+garden: g
+Chili: CC
+Chaine vide bloque
+
+Carte du haut du discard pile est: S
+Les cartes dans le Trade Area sont: 
+s s s 
+
+Contenue du Deck: 
+BbBSbGCGsCCBRbBgSBsSsSBsBRSSGgRGsGBgbSBCSGCGsSGCBRCbGgSSBbbCbSBBCGbbGG
+Cartes dans la main sont: sGSRRCS
+
+Cartes dans la main sont: RCsBgGCs
+
+Carte du haut du discard pile est: S
+
