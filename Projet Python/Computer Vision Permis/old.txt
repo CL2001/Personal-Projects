@@ -1,0 +1,295 @@
+def extract_text_from_image(processed_image):
+    # Use pytesseract to extract text from the processed image
+    text = pytesseract.image_to_string(processed_image)
+    return text
+
+def gather_info(text):
+    first_name = None
+    last_name = None
+    year = None
+    month = None
+    day = None
+    gender = None
+
+    # Split using "Date de naissance" as a marker.
+    parts = text.split("Date de naissance")
+    if parts:
+        name_section = parts[0].strip()
+        # Split into lines and filter out empty lines.
+        lines = [line.strip() for line in name_section.splitlines() if line.strip()]
+        # Filter lines to those that are fully in uppercase (which should be the names)
+        name_lines = [line for line in lines if line.isupper()]
+        # Expect at least two lines for last name and first name
+        if len(name_lines) >= 2:
+            # Based on your sample, the first line is the last name and the second is the first name.
+            last_name = name_lines[0]
+            first_name = name_lines[1]
+
+    # Use a more flexible regex for the date, allowing an optional colon.
+    pattern_date = r"Date de naissance \(A-M-J\)\s*:?\s*(\d{4})-(\d{2})-(\d{2})"
+    match_date = re.search(pattern_date, text)
+    if match_date:
+        year, month, day = match_date.group(1), match_date.group(2), match_date.group(3)
+
+    # Extract Gender (assuming the OCR reliably outputs "Sexe" followed by F or M)
+    pattern_gender = r"Sexe\s*([FM])"
+    match_gender = re.search(pattern_gender, text)
+    if match_gender:
+        gender = match_gender.group(1)
+
+    return (first_name, last_name, year, month, day, gender)
+
+
+
+
+
+
+def preprocess_image(image_path):
+    # Load the image
+    image = cv2.imread(image_path)
+    if image is None:
+        raise FileNotFoundError("Image not found at the provided path.")
+    
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply thresholding to enhance text (using Otsu's thresholding)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    
+    return thresh
+
+
+if __name__ == '__main__':
+    # Use your approach to get the image path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    #image_path = os.path.join(script_dir, 'permis_photo.jpg')
+    image_path = os.path.join(script_dir, 'permis_image.jpg')
+    
+    try:
+        # Preprocess the image to improve OCR accuracy
+        processed_image = preprocess_image(image_path)
+        cv2.imshow("Processed_image", processed_image)
+        cv2.waitKey(0) # Wait for a key press to close the window
+        
+        # Extract text from the processed image
+        extracted_text = extract_text_from_image(processed_image)
+        print(extracted_text)
+        results = gather_info(extracted_text)
+        correct_info = True
+        for result in results:
+            if result is None:
+                correct_info = False
+                print("Try again", results)
+                break
+        if correct_info:
+            print(results)  # Expected output: ('ANNE-MARIE', 'LAPOINTE', '1974', '12', '17', 'F')
+        
+    except Exception as e:
+        print("An error occurred:", e)
+
+
+
+
+import os
+import cv2
+import pytesseract
+import re
+import numpy as np
+
+# Specify the Tesseract executable path if it's not in your system PATH
+pytesseract.pytesseract.tesseract_cmd = f"C:/Program Files/Tesseract-OCR/tesseract.exe"
+"""
+def preprocess_video_feed(frame):
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+    # Apply thresholding to enhance text (using Otsu's thresholding)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    
+    return thresh
+"""
+
+def preprocess_video_feed(frame):
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+    # Convert frame to HSV for better color segmentation
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    
+    # Define the HSV range for light blue (adjust these values as needed)
+    lower_blue = np.array([80, 50, 50])
+    upper_blue = np.array([140, 255, 255])
+    
+    # Create a mask for light blue regions
+    mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+    
+    # Force the light blue regions in the grayscale image to black
+    gray[mask_blue > 0] = 0
+    
+    # Apply Otsu's thresholding to enhance text
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    
+    return thresh
+
+def extract_text_from_image(processed_image):
+    # Use pytesseract to extract text from the processed image
+    text = pytesseract.image_to_string(processed_image)
+    return text
+
+def gather_info(text):
+    #Extracts key information from a Quebec driver's license text.
+    
+    #The function returns a tuple containing: (first_name, last_name, year_of_birth, month_of_birth, day_of_birth, gender)
+    
+    #Extraction details:
+    #- Names: It looks in the section before "Date de naissance (A-M-J)" for two all‐caps words (which may include hyphens)
+    #  separated by a colon. The word after the colon is taken as the first name, and the word before is the last name.
+    #- Date of birth: It extracts the date in the format YYYY-MM-DD that appears after "Date de naissance (A-M-J)".
+    #- Gender: It searches for a line containing "Sexe" and extracts the letter F or M.
+    
+    #If any piece of information cannot be gathered, its value will be None.
+    first_name = None
+    last_name = None
+    year = None
+    month = None
+    day = None
+    gender = None
+
+    # --- Extract Name ---
+    # Look in the portion of the text before "Date de naissance"
+    parts = text.split("Date de naissance")
+    if parts:
+        name_section = parts[0]
+        # This pattern finds two groups of uppercase letters (with optional hyphens) separated by a colon.
+        pattern_name = r'([A-Z]+(?:-[A-Z]+)*)\s*:\s*([A-Z]+(?:-[A-Z]+)*)'
+        match_name = re.search(pattern_name, name_section)
+        if match_name:
+            # Per the format:
+            #   The word before the colon is the last name,
+            #   The word after the colon is the first name.
+            last_name = match_name.group(1)
+            first_name = match_name.group(2)
+
+    # --- Extract Date of Birth ---
+    # The date should be on the same line as "Date de naissance (A-M-J)"
+    pattern_date = r"Date de naissance \(A-M-J\)\s*:\s*(\d{4})-(\d{2})-(\d{2})"
+    match_date = re.search(pattern_date, text)
+    if match_date:
+        year, month, day = match_date.group(1), match_date.group(2), match_date.group(3)
+
+    # --- Extract Gender ---
+    # Search for the gender letter (F or M) following "Sexe"
+    pattern_gender = r"Sexe\s*([FM])"
+    match_gender = re.search(pattern_gender, text)
+    if match_gender:
+        gender = match_gender.group(1)
+
+    return (first_name, last_name, year, month, day, gender)
+
+
+if __name__ == '__main__':
+    # Open the default camera
+    cap = cv2.VideoCapture(1)
+    
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to capture frame from camera.")
+                break
+
+            # Optionally, display the current frame (uncomment if desired)
+            #cv2.imshow("Camera Feed", frame)
+            
+            # Preprocess the frame to improve OCR accuracy
+            processed_image = preprocess_video_feed(frame)
+            cv2.imshow("Camera Feed", processed_image)
+
+            # Extract text from the processed frame
+            extracted_text = extract_text_from_image(processed_image)
+            
+            # Gather the necessary information from the extracted text
+            results = gather_info(extracted_text)
+            
+            # Check if all required pieces of information were extracted
+            correct_info = True
+            for result in results:
+                if result is None:
+                    correct_info = False
+                    print("Try again", results)
+                    break
+            
+            # If complete information is found, print it and exit the loop
+            if correct_info:
+                print(results)  # Expected output: ('ANNE-MARIE', 'LAPOINTE', '1974', '12', '17', 'F')
+                break
+            
+            # Optional: allow exit by pressing 'q'
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                print("Exiting due to user request.")
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+    except Exception as e:
+        print("An error occurred:", e)
+        cap.release()
+        cv2.destroyAllWindows()
+
+
+
+
+"""
+
+def preprocess_image(image_path):
+    # Load the image
+    image = cv2.imread(image_path)
+    if image is None:
+        raise FileNotFoundError("Image not found at the provided path.")
+    
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply thresholding to enhance text (using Otsu's thresholding)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    
+    return thresh
+
+
+if __name__ == '__main__':
+    # Use your approach to get the image path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_dir, 'permis_image.jpg')
+    #image_path = os.path.join(script_dir, 'permis_image.jpg')
+    
+    try:
+        # Preprocess the image to improve OCR accuracy
+        processed_image = preprocess_image(image_path)
+        
+        # Extract text from the processed image
+        extracted_text = extract_text_from_image(processed_image)
+
+        results = gather_info(extracted_text)
+        correct_info = True
+        for result in results:
+            if result is None:
+                correct_info = False
+                print("Some information could not be extracted.")
+                break
+        if correct_info:
+            print(results)  # Expected output: ('ANNE-MARIE', 'LAPOINTE', '1974', '12', '17', 'F')
+        
+    except Exception as e:
+        print("An error occurred:", e)
+
+
+
+"""
+
+
+
+
+
+
+
